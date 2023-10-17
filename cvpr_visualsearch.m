@@ -18,7 +18,7 @@
 %% University of Surrey, United Kingdom
 
 close all;
-clear all;
+% clear all;
 
 %% Edit the following line to the folder you unzipped the MSRCv2 dataset to
 DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
@@ -27,7 +27,7 @@ DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
 DESCRIPTOR_FOLDER = './descriptors';
 %% and within that folder, another folder to hold the descriptors
 %% we are interested in working with
-DESCRIPTOR_SUBFOLDER='globalRGBhisto';
+DESCRIPTOR='globalRGBHistogram';
 
 
 %% 1) Load all the descriptors into "ALLFEAT"
@@ -42,7 +42,8 @@ for filenum=1:length(allfiles)
     imgfname_full=([DATASET_FOLDER,'/Images/',fname]);
     img=double(imread(imgfname_full))./255;
     thesefeat=[];
-    featfile=[DESCRIPTOR_FOLDER,'/',DESCRIPTOR_SUBFOLDER,'/',fname(1:end-4),'.mat'];%replace .bmp with .mat
+    % replace .bmp with .mat
+    featfile=[DESCRIPTOR_FOLDER,'/',DESCRIPTOR,'/',fname(1:end-4),'.mat'];
     load(featfile,'F');
     ALLFILES{ctr}=imgfname_full;
     ALLFEAT=[ALLFEAT ; F];
@@ -52,7 +53,7 @@ end
 %% 2) Pick an image at random to be the query
 NIMG=size(ALLFEAT,1);           % number of images in collection
 queryimg=floor(rand()*NIMG);    % index of a random image
-
+% queryimg = 10;
 
 %% 3) Compute the distance of image to the query
 dst=[];
@@ -68,14 +69,16 @@ dst=sortrows(dst,1);  % sort the results
 %% These may be a little hard to see using imgshow
 %% If you have access, try using imshow(outdisplay) or imagesc(outdisplay)
 
-SHOW=15; % Show top 15 results
+% Show top 10 results
+SHOW=10;
 dst=dst(1:SHOW,:);
 outdisplay=[];
 for i=1:size(dst,1)
-   img=imread(ALLFILES{dst(i,2)});
-   img=img(1:2:end,1:2:end,:); % make image a quarter size
-   img=img(1:81,:,:); % crop image to uniform size vertically (some MSVC images are different heights)
-   outdisplay=[outdisplay img];
+    img=imread(ALLFILES{dst(i,2)});
+    img=img(1:2:end,1:2:end,:); % make image a quarter size
+    img=img(1:81,:,:); % crop image to uniform size vertically (some MSVC images are different heights)
+    outdisplay=[outdisplay img];
 end
-imgshow(outdisplay);
+figure;
+imshow(outdisplay);
 axis off;

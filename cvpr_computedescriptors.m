@@ -12,7 +12,7 @@
 %% University of Surrey, United Kingdom
 
 close all;
-clear all;
+% clear all;
 
 %% Edit the following line to the folder you unzipped the MSRCv2 dataset to
 DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
@@ -22,7 +22,15 @@ OUT_FOLDER = './descriptors';
 %% and within that folder, create another folder to hold these descriptors
 %% the idea is all your descriptors are in individual folders - within
 %% the folder specified as 'OUT_FOLDER'.
-OUT_SUBFOLDER='globalRGBhisto';
+
+%% - random : returns an array of random features
+%% - meanColor : returns the mean r,g,b values for the given img
+%% - globalRGBHistogram : returns a histogram of color values with the given number of bins (default: 4)
+DESCRIPTOR='globalRGBHistogram';
+
+if ~exist([OUT_FOLDER '/' DESCRIPTOR], 'dir')
+    mkdir([OUT_FOLDER '/' DESCRIPTOR])
+end
 
 allfiles=dir (fullfile([DATASET_FOLDER,'/Images/*.bmp']));
 for filenum=1:length(allfiles)
@@ -31,8 +39,19 @@ for filenum=1:length(allfiles)
     tic;
     imgfname_full=([DATASET_FOLDER,'/Images/',fname]);
     img=double(imread(imgfname_full))./255;
-    fout=[OUT_FOLDER,'/',OUT_SUBFOLDER,'/',fname(1:end-4),'.mat'];%replace .bmp with .mat
-    F=extractRandom(img);
+    fout=[OUT_FOLDER,'/',DESCRIPTOR,'/',fname(1:end-4),'.mat'];%replace .bmp with .mat
+    
+    switch DESCRIPTOR
+        case 'random'
+            F = extractRandom(img);
+        case 'meanColor'
+            F = extractMeanColor(img);
+        case 'globalRGBHistogram'
+            F = extractGlobalRGBHistogram(img);
+        otherwise
+            F = extractRandom(img);
+    end
+    
     save(fout,'F');
     toc
 end
