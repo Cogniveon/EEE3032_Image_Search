@@ -1,4 +1,4 @@
-function F=extractGlobalRGBHistogram(img,Q)
+function F=extractRGBHistogram(img,Q)
 arguments
   img
   Q = 4
