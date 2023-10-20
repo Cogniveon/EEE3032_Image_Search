@@ -1,4 +1,4 @@
-function F = extractSpacialRGBHistogram(img, M, N)
+function F = extractSpacialColorHistogram(img, M, N)
   % Note img is a normalised RGB image i.e. colours range [0,1] not [0,255].
   arguments
     img

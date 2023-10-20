@@ -16,36 +16,21 @@ close all;
 addpath('./utils');
 addpath('./extractors');
 
-%% Edit the following line to the folder you unzipped the MSRCv2 dataset to
-DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
+[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR] = cvpr_config();
 
-%% Create a folder to hold the results...
-OUT_FOLDER = './descriptors';
-%% and within that folder, create another folder to hold these descriptors
-%% the idea is all your descriptors are in individual folders - within
-%% the folder specified as 'OUT_FOLDER'.
-
-%% - random : returns an array of random features
-%% - meanColor : returns the mean r,g,b values for the given img
-%% - globalRGBHistogram : returns a histogram of color values with the given number of bins (default: 4)
-%% - spacialMeanColor : returns an array of mean colors in a spacial grid of N x N cells (N is 16 by default)
-%% - spacialRGBHistogram : returns a histogram of color values in a spacial grid of N x N cells (N is 16 by default)
-%% - spacialColorTextureHistogram : returns a histogram of edge and color values in a spacial grid of N x N cells (N is 16 by default)
-DESCRIPTOR='spacialColorTextureHistogram';
-
-if ~exist([OUT_FOLDER '/' DESCRIPTOR], 'dir')
-    mkdir([OUT_FOLDER '/' DESCRIPTOR])
+if ~exist([DESCRIPTOR_FOLDER '/' DESCRIPTOR], 'dir')
+    mkdir([DESCRIPTOR_FOLDER '/' DESCRIPTOR])
 end
 
-allfiles=dir (fullfile([DATASET_FOLDER,'/Images/*.bmp']));
-for filenum=1:length(allfiles)
-    fname=allfiles(filenum).name;
-    fprintf('Processing file %d/%d - %s\n',filenum,length(allfiles),fname);
+IMAGES = cvpr_loadimages(DATASET_FOLDER);
+[~, NIMG]=size(IMAGES);
+
+for i = 1:NIMG
+    fprintf('Processing file %d/%d - %s\n', i, NIMG, IMAGES{1, i});
     tic;
-    imgfname_full=([DATASET_FOLDER,'/Images/',fname]);
-    img=double(imread(imgfname_full))./255;
-    fout=[OUT_FOLDER,'/',DESCRIPTOR,'/',fname(1:end-4),'.mat'];%replace .bmp with .mat
-    
+    img=double(imread(IMAGES{1, i}))./256;
+    descriptor_path = [DESCRIPTOR_FOLDER, '/', DESCRIPTOR, '/', IMAGES{2, i}];
+
     switch DESCRIPTOR
         case 'random'
             F = extractRandom(img);
@@ -55,14 +40,14 @@ for filenum=1:length(allfiles)
             F = extractRGBHistogram(img);
         case 'spacialMeanColor'
             F = extractSpacialMeanColor(img);
-        case 'spacialRGBHistogram'
-            F = extractSpacialRGBHistogram(img);
+        case 'spacialColorHistogram'
+            F = extractSpacialColorHistogram(img);
         case 'spacialColorTextureHistogram'
             F = extractSpacialColorTextureHistogram(img);
         otherwise
             F = extractRandom(img);
     end
     
-    save(fout,'F');
-    toc
+    save(descriptor_path, 'F');
+    toc;
 end
