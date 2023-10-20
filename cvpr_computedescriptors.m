@@ -30,7 +30,8 @@ OUT_FOLDER = './descriptors';
 %% - globalRGBHistogram : returns a histogram of color values with the given number of bins (default: 4)
 %% - spacialMeanColor : returns an array of mean colors in a spacial grid of N x N cells (N is 16 by default)
 %% - spacialRGBHistogram : returns a histogram of color values in a spacial grid of N x N cells (N is 16 by default)
-DESCRIPTOR='spacialRGBHistogram';
+%% - spacialColorTextureHistogram : returns a histogram of edge and color values in a spacial grid of N x N cells (N is 16 by default)
+DESCRIPTOR='spacialColorTextureHistogram';
 
 if ~exist([OUT_FOLDER '/' DESCRIPTOR], 'dir')
     mkdir([OUT_FOLDER '/' DESCRIPTOR])
@@ -56,6 +57,8 @@ for filenum=1:length(allfiles)
             F = extractSpacialMeanColor(img);
         case 'spacialRGBHistogram'
             F = extractSpacialRGBHistogram(img);
+        case 'spacialColorTextureHistogram'
+            F = extractSpacialColorTextureHistogram(img);
         otherwise
             F = extractRandom(img);
     end

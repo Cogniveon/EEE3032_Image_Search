@@ -13,7 +13,7 @@ DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
 DESCRIPTOR_FOLDER = './descriptors';
 %% and within that folder, another folder to hold the descriptors
 %% we are interested in working with
-DESCRIPTOR='spacialRGBHistogram';
+DESCRIPTOR='spacialColorTextureHistogram';
 
 
 %% 1) Load all the descriptors into "ALLFEAT"
@@ -40,7 +40,7 @@ NIMG=size(ALLFEAT,1);             % number of images in collection
 % queryimg=floor(rand()*NIMG);    % index of a random image
 queryimg = 1;
 
-[ALLFEATPCA, E] = Eigen_PCA(ALLFEAT, 'keepn', 3);
+[ALLFEATPCA, E] = Eigen_PCA(ALLFEAT', 'keepn', 3);
 ALLFEATPCA = ALLFEATPCA';
 
 %% 3) Compute the distance of image to the query
