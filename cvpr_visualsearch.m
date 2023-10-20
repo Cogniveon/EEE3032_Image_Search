@@ -19,6 +19,7 @@
 
 close all;
 % clear all;
+addpath('./utils');
 
 %% Edit the following line to the folder you unzipped the MSRCv2 dataset to
 DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
