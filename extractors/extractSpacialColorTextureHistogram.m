@@ -2,8 +2,8 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
   % Note img is a normalised RGB image i.e. colours range [0,1] not [0,255].
   arguments
     img
-    M = 4
-    N = 3
+    M = 5
+    N = 5
   end
   [rows, columns, numberOfColorChannels] = size(img);
   F = [];
@@ -24,7 +24,7 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
       subImage = img(rowA : rowB, colA : colB, :);
 
       % Extract color info
-      meanColor = extractMeanColor(subImage);
+      colorHistogram = extractRGBHistogram(subImage);
 
       % Extract edge info
       greyImg = subImage(:,:,1) * 0.3 + subImage(:,:,2) * 0.59 + subImage(:,:,3) * 0.11;
@@ -33,7 +33,7 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
 
       edge_histogram = Edge_Histogram(mag, angle);
       
-      F = [F edge_histogram meanColor];
+      F = [F edge_histogram colorHistogram];
     end
   end
 return;
