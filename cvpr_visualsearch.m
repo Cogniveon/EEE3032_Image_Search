@@ -1,56 +1,79 @@
 %% EEE3032 - Computer Vision and Pattern Recognition (ee3.cvpr)
 %%
-%% cvpr_visualsearch.m
-%% Skeleton code provided as part of the coursework assessment
-%%
-%% This code will load in all descriptors pre-computed (by the
-%% function cvpr_computedescriptors) from the images in the MSRCv2 dataset.
-%%
-%% It will pick a descriptor at random and compare all other descriptors to
-%% it - by calling cvpr_compare.  In doing so it will rank the images by
-%% similarity to the randomly picked descriptor.  Note that initially the
-%% function cvpr_compare returns a random number - you need to code it
-%% so that it returns the Euclidean distance or some other distance metric
-%% between the two descriptors it is passed.
-%%
-%% (c) John Collomosse 2010  (J.Collomosse@surrey.ac.uk)
-%% Centre for Vision Speech and Signal Processing (CVSSP)
-%% University of Surrey, United Kingdom
+%% cvpr_visualsearch_pca.m
 
 close all;
 % clear all;
 addpath('./utils');
+delete('./results/*')
 
-[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR] = cvpr_config();
+[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES] = cvpr_config();
 
 %% 1) Load all the descriptors into "FEATURES"
 %% each row of FEATURES is a descriptor (is an image)
 
-IMAGES = cvpr_loadimages(DATASET_FOLDER);
-FEATURES = cvpr_loadfeatures(IMAGES);
-
-
-%% 2) Pick an image at random to be the query
+IMAGES = LoadImages(DATASET_FOLDER);
+FEATURES = LoadFeatures(IMAGES);
 
 % number of images in collection
 [~, NIMG]=size(IMAGES);
 
+%% 2) Pick an image at random to be the query
+[QUERYSET, category_histogram] = RandomQueryset(IMAGES);
 % index of a random image
 % queryimg=floor(rand()*NIMG);
-queryimg = 1;
+% queryimg = 1;
 
-%% 3) Compute the distance of image to the query
-dst=[];
-for i=1:NIMG
-    candidate=FEATURES(i,:);
-    query=FEATURES(queryimg,:);
-    thedst=cvpr_compare(query,candidate);
-    dst=[dst ; [thedst i]];
+for imgindex = 1:size(QUERYSET)
+    queryimg = QUERYSET(imgindex);
+
+    if USE_PCA
+    
+        %% 3) Compute eigen model of the FEATURES matrix for PCA
+        
+        E = EigenModel(FEATURES);
+        E = EigenDeflate(E, 0.986);
+        
+        %% 4) Project the FEATURES into lower dimension
+        
+        FEATURES=FEATURES-repmat(E.org,size(FEATURES,1),1);
+        FEATURES=((E.vct')*(FEATURES'))';
+    
+    end
+    
+    %% 5) Compute the distance of images to the query
+    dst = cell(NIMG);
+    for i=1:NIMG
+        candidate=FEATURES(i,:);
+        query=FEATURES(queryimg,:);
+    
+        switch DISTANCE_FN
+            case 'random'
+                distance = cvpr_compare(query, candidate, 'random');
+            case 'l1'
+                distance = cvpr_compare(query, candidate, 'l1');
+            case 'euclidean'
+                distance = cvpr_compare(query, candidate, 'euclidean');
+            case 'mahalanobis'
+                distance = cvpr_compare(query, candidate, 'mahalanobis', E);
+            otherwise
+                distance = cvpr_compare(query, candidate, 'euclidean');
+        end
+        dst{i} = [distance i];
+    end
+    dst = cell2mat(dst);
+    dst = sortrows(dst, 1);
+    
+    % Limit results
+    SHOW=10;
+    dst=dst(1:SHOW,:);
+    
+    %% 6) Visualise the results
+    if ~exist(['./results' '/' 'searchResults'], 'dir')
+        mkdir(['./results' '/' 'searchResults'])
+    end
+    
+    f = figure('Visible','off');
+    montage(IMAGES(1, dst(:,2)), 'Size', [1 NaN]);
+    saveas(f, strcat('./results', '/', 'searchResults/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)), 'jpg');
 end
-dst=sortrows(dst,1);
-
-%% 4) Visualise the results
-% Limit results
-SHOW=10;
-dst=dst(1:SHOW,:);
-montage(IMAGES(1, dst(:,2)), 'Size', [1 NaN]);

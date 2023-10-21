@@ -1,4 +1,4 @@
-function [DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, CATEGORIES]=cvpr_config()
+function [DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES]=cvpr_config()
 
 %% Edit the following line to the folder you unzipped the MSRCv2 dataset to
 DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
@@ -17,8 +17,16 @@ DESCRIPTOR_FOLDER = './descriptors';
 %% - spacialColorTextureHistogram : returns a histogram of edge and color values in a spacial grid of N x N cells (N is 16 by default)
 DESCRIPTOR='spacialColorTextureHistogram';
 
+%% - random : returns a random distance
+%% - l1 : returns F1-F2
+%% - euclidean : returns sqrt((F1-F2)^2)
+%% - mahalanobis : returns the mahalanobis distance (requires PCA)
+DISTANCE_FN='euclidean';
+
+USE_PCA = true;
+
 CATEGORIES = [
-    "Farm Animal" 
+    "Farm_Animal" 
     "Tree"
     "Building"
     "Plane"
@@ -30,13 +38,13 @@ CATEGORIES = [
     "Flower"
     "Sign"
     "Bird"
-    "Book Shelf"
+    "Book_Shelf"
     "Bench"
     "Cat"
     "Dog"
     "Road"
-    "Water Features"
-    "Human Figures"
+    "Water_Features"
+    "Human_Figures"
     "Coast"
 ];
 

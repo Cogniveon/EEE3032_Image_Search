@@ -22,7 +22,7 @@ if ~exist([DESCRIPTOR_FOLDER '/' DESCRIPTOR], 'dir')
     mkdir([DESCRIPTOR_FOLDER '/' DESCRIPTOR])
 end
 
-IMAGES = cvpr_loadimages(DATASET_FOLDER);
+IMAGES = LoadImages(DATASET_FOLDER);
 [~, NIMG]=size(IMAGES);
 
 for i = 1:NIMG

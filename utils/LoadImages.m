@@ -1,4 +1,4 @@
-function [IMAGES]=cvpr_loadimages(DATASET_FOLDER)
+function [IMAGES]=LoadImages(DATASET_FOLDER)
 
 all_files = dir(fullfile([DATASET_FOLDER,'/Images/*.bmp']));
 IMAGES=cell(3,0);
