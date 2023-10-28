@@ -5,7 +5,9 @@
 close all;
 % clear all;
 addpath('./utils');
-delete('./results/*')
+
+% Clean the results folder (search output, PR graphs, confusion matrix, etc)
+rmdir_status = rmdir('./results/*', 's');
 
 [DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES] = cvpr_config();
 
@@ -19,10 +21,13 @@ FEATURES = LoadFeatures(IMAGES);
 [~, NIMG]=size(IMAGES);
 
 %% 2) Pick an image at random to be the query
-[QUERYSET, category_histogram] = RandomQueryset(IMAGES);
-% index of a random image
-% queryimg=floor(rand()*NIMG);
-% queryimg = 1;
+
+% [QUERYSET, category_histogram] = RandomQueryset(IMAGES);
+
+queryimg=floor(rand()*NIMG);
+QUERYSET = queryimg;
+
+avg_precision = zeros([1, size(QUERYSET)]);
 
 for imgindex = 1:size(QUERYSET)
     queryimg = QUERYSET(imgindex);
@@ -63,17 +68,66 @@ for imgindex = 1:size(QUERYSET)
     end
     dst = cell2mat(dst);
     dst = sortrows(dst, 1);
-    
+
+    %% 6) Calculate PR
+
+    % Row 1-precision, Row 2-recall, Row 3-correctAtN
+    pr_values = zeros(3, NIMG);
+
+    queryimg = dst(1,2);
+    query_category = IMAGES{3, queryimg};
+
+    for i = 1:NIMG
+        rows = dst(1:i, :);
+
+        correct_results = 0;
+        incorrect_results = 0;
+
+        if i > 1
+            for n = 1:i-1
+                result_category = IMAGES{3, rows(n, 2)};
+                if query_category == result_category
+                    correct_results = correct_results + 1;
+                else
+                    incorrect_results = incorrect_results + 1;
+                end
+            end
+        end
+
+        result_category = IMAGES{3, rows(i, 2)};
+
+        if query_category == result_category
+            correct_results = correct_results + 1;
+            pr_values(3, i) = 1;
+        else
+            incorrect_results = incorrect_results + 1;
+        end
+
+        pr_values(1, i) = correct_results / i;
+        pr_values(2, i) = correct_results / category_histogram(query_category);
+    end
+
+    avg_precision(imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / length(QUERYSET);
+
     % Limit results
     SHOW=10;
     dst=dst(1:SHOW,:);
     
-    %% 6) Visualise the results
-    if ~exist(['./results' '/' 'searchResults'], 'dir')
-        mkdir(['./results' '/' 'searchResults'])
+    %% 7) Visualise the results
+    if ~exist(strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)), 'dir')
+        mkdir(strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)))
     end
+
+    pr_graph = figure('Visible','off');
+    plot(pr_values(1, :), pr_values(2, :));
+    hold on;
+    title('PR Curve');
+    xlabel('Recall');
+    ylabel('Precision');
+    saveas(pr_graph, strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg), '/', 'pr_graph'), 'jpg');
+
     
-    f = figure('Visible','off');
+    search_output = figure('Visible','off');
     montage(IMAGES(1, dst(:,2)), 'Size', [1 NaN]);
-    saveas(f, strcat('./results', '/', 'searchResults/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)), 'jpg');
+    saveas(search_output, strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg), '/', 'search_output'), 'jpg');
 end

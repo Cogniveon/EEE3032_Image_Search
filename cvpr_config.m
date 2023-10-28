@@ -15,7 +15,7 @@ DESCRIPTOR_FOLDER = './descriptors';
 %% - spacialMeanColor : returns an array of mean colors in a spacial grid of N x N cells (N is 16 by default)
 %% - spacialColorHistogram : returns a histogram of color values in a spacial grid of N x N cells (N is 16 by default)
 %% - spacialColorTextureHistogram : returns a histogram of edge and color values in a spacial grid of N x N cells (N is 16 by default)
-DESCRIPTOR='spacialColorTextureHistogram';
+DESCRIPTOR='spacialColorHistogram';
 
 %% - random : returns a random distance
 %% - l1 : returns F1-F2
@@ -23,7 +23,7 @@ DESCRIPTOR='spacialColorTextureHistogram';
 %% - mahalanobis : returns the mahalanobis distance (requires PCA)
 DISTANCE_FN='euclidean';
 
-USE_PCA = true;
+USE_PCA = false;
 
 CATEGORIES = [
     "Farm_Animal" 
