@@ -22,15 +22,20 @@ FEATURES = LoadFeatures(IMAGES);
 
 %% 2) Pick an image at random to be the query
 
-% [QUERYSET, category_histogram] = RandomQueryset(IMAGES);
+[QUERYSET, category_histogram] = RandomQueryset(IMAGES);
 
-queryimg=floor(rand()*NIMG);
-QUERYSET = queryimg;
+% queryimg=floor(rand()*NIMG);
+% QUERYSET = queryimg;
 
 avg_precision = zeros([1, size(QUERYSET)]);
+confusion_matrix = zeros(length(category_histogram));
 
+fprintf('Running visual search for %d iterations\n', length(QUERYSET));
 for imgindex = 1:size(QUERYSET)
     queryimg = QUERYSET(imgindex);
+
+    fprintf('Searching for image %d/%d - %s (%s)\n', imgindex, length(QUERYSET), string(IMAGES{1, queryimg}), CATEGORIES(IMAGES{3, queryimg}));
+    tic;
 
     if USE_PCA
     
@@ -108,16 +113,29 @@ for imgindex = 1:size(QUERYSET)
     end
 
     avg_precision(imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / length(QUERYSET);
+    fprintf('Average precision: %.2f\n', avg_precision(imgindex));
 
     % Limit results
     SHOW=10;
     dst=dst(1:SHOW,:);
     
-    %% 7) Visualise the results
+    %% 7) Calculate confusion matrix
+    for i = 1:SHOW
+        confusion_matrix(IMAGES{3, dst(i, 2)}, imgindex) = confusion_matrix(IMAGES{3, dst(i, 2)}, imgindex) + 1;
+    end
+    
+
+    %% 8) Visualise the results
     if ~exist(strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)), 'dir')
         mkdir(strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg)))
     end
+    
+    % Search output
+    search_output = figure('Visible','off');
+    montage(IMAGES(1, dst(:,2)), 'Size', [1 NaN]);
+    saveas(search_output, strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg), '/', 'search_output'), 'jpg');
 
+    % Individual PR graph
     pr_graph = figure('Visible','off');
     plot(pr_values(1, :), pr_values(2, :));
     hold on;
@@ -125,9 +143,15 @@ for imgindex = 1:size(QUERYSET)
     xlabel('Recall');
     ylabel('Precision');
     saveas(pr_graph, strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg), '/', 'pr_graph'), 'jpg');
+    hold off;
 
-    
-    search_output = figure('Visible','off');
-    montage(IMAGES(1, dst(:,2)), 'Size', [1 NaN]);
-    saveas(search_output, strcat('./results', '/', CATEGORIES(IMAGES{3, queryimg}), '_', string(queryimg), '/', 'search_output'), 'jpg');
+    toc;
 end
+
+% Confusion Matrix
+confusion_matrix_output = figure('Visible','off');
+cm = confusionchart(confusion_matrix, CATEGORIES, 'Normalization', 'column-normalized');
+cm.Title = 'Spatial Colour and Texture Confusion Matrix with PCA (5x5, quant. 4, 7 bins, thresh. 0.09)';
+xlabel('Query Classification');
+ylabel('Ground Truth');
+saveas(confusion_matrix_output, strcat('./results', '/', 'confusion_matrix'), 'jpg');

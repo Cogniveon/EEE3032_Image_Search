@@ -3,7 +3,7 @@ function F = Edge_Histogram(mag, angle, bins, threshold)
     mag
     angle
     bins = 7
-    threshold = 0.8
+    threshold = 0.09
   end
   
   [rows, columns] = size(angle);

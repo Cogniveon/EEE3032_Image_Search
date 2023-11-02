@@ -44,6 +44,8 @@ for i = 1:NIMG
             F = extractSpacialColorHistogram(img);
         case 'spacialColorTextureHistogram'
             F = extractSpacialColorTextureHistogram(img);
+        case 'sift'
+            F = extractSIFT(img);
         otherwise
             F = extractRandom(img);
     end

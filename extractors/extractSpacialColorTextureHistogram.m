@@ -27,7 +27,8 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
       colorHistogram = extractRGBHistogram(subImage);
 
       % Extract edge info
-      greyImg = subImage(:,:,1) * 0.3 + subImage(:,:,2) * 0.59 + subImage(:,:,3) * 0.11;
+      % subImage(:,:,1) * 0.3 + subImage(:,:,2) * 0.59 + subImage(:,:,3) * 0.11
+      greyImg = rgb2gray(subImage);
       blurredGreyImg = imgaussfilt(greyImg, 1);
       [mag, angle] = Sobel(blurredGreyImg);
 

@@ -4,7 +4,7 @@ function [FEATURES]=LoadFeatures(IMAGES)
 
 [~, NIMG]=size(IMAGES);
 
-FEATURES = cell(NIMG);
+FEATURES = cell(NIMG, 1);
 
 for i=1:NIMG
     descriptor_path = [DESCRIPTOR_FOLDER, '/', DESCRIPTOR, '/', IMAGES{2, i}];
