@@ -1,0 +1,71 @@
+\documentclass[10pt,a4paper,onecolumn]{article} % titlepage
+
+\usepackage[margin=2cm]{geometry}
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, e.g. with the
+% file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete
+% ReviewTempalte.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you
+%  should be clear).
+\usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
+
+
+% Support for easy cross-referencing
+\usepackage[capitalize]{cleveref}
+\crefname{section}{Sec.}{Secs.}
+\Crefname{section}{Section}{Sections}
+\Crefname{table}{Table}{Tables}
+\crefname{table}{Tab.}{Tabs.}
+
+
+\begin{document}
+
+\title{EEE3032 – Coursework Assignment \\ Visual Search of an Image Collection }
+
+\author{Rohit Krishnan, {URN: 6839323},
+{\tt r.00088@surrey.ac.uk}
+}
+\maketitle
+
+\newpage
+
+\begin{abstract}
+Your abstract goes here...
+...
+\end{abstract}
+
+{
+  \hypersetup{linkcolor=black}
+  \tableofcontents
+}
+
+\twocolumn
+
+%%%%%%%%% BODY TEXT
+\section{Introduction}
+\label{sec:intro}
+
+this book is awesome \cite{szeliski2011computer}
+
+\newpage
+
+%%%%%%%%% REFERENCES
+{\small
+\bibliographystyle{ieee_fullname}
+\bibliography{egbib}
+}
+
+\end{document}
