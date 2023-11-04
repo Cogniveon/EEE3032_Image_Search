@@ -13,8 +13,8 @@
 
 close all;
 % clear all;
-addpath('./utils');
-addpath('./extractors');
+addpath('./core/utils');
+addpath('./core/extractors');
 
 [DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR] = cvpr_config();
 
@@ -22,7 +22,7 @@ if ~exist([DESCRIPTOR_FOLDER '/' DESCRIPTOR], 'dir')
     mkdir([DESCRIPTOR_FOLDER '/' DESCRIPTOR])
 end
 
-IMAGES = LoadImages(DATASET_FOLDER);
+IMAGES = LoadImages([DATASET_FOLDER]);
 [~, NIMG]=size(IMAGES);
 
 for i = 1:NIMG

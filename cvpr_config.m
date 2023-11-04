@@ -1,7 +1,7 @@
 function [DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES]=cvpr_config()
 
 %% Edit the following line to the folder you unzipped the MSRCv2 dataset to
-DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2';
+DATASET_FOLDER = './MSRC_ObjCategImageDatabase_v2/Images';
 
 %% Folder that holds the results...
 DESCRIPTOR_FOLDER = './descriptors';

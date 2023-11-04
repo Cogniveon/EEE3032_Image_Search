@@ -6,7 +6,6 @@ function F = extractSpacialColorHistogram(img, M, N)
     N = 5
   end
   [rows, columns, numberOfColorChannels] = size(img);
-  F = [];
 
   numBandsHorizontally = M;
   numBandsVertically = N;
@@ -14,6 +13,7 @@ function F = extractSpacialColorHistogram(img, M, N)
   topRows = round(linspace(1, rows+1, numBandsVertically + 1));
   leftColumns = round(linspace(1, (columns./numberOfColorChannels)+1, numBandsHorizontally + 1));
 
+  F = [];
   for row = 1 : length(topRows) - 1
     rowA = topRows(row);
     rowB = topRows(row + 1) - 1;

@@ -4,7 +4,7 @@
 
 close all;
 % clear all;
-addpath('./utils');
+addpath('./core/utils');
 
 % Clean the results folder (search output, PR graphs, confusion matrix, etc)
 rmdir_status = rmdir('./results/*', 's');
@@ -25,9 +25,10 @@ FEATURES = LoadFeatures(IMAGES);
 [QUERYSET, category_histogram] = RandomQueryset(IMAGES);
 
 % queryimg=floor(rand()*NIMG);
-% QUERYSET = queryimg;
+% QUERYSET = 303;
 
-avg_precision = zeros([1, size(QUERYSET)]);
+all_precision = zeros([1, size(QUERYSET)]);
+all_recall = zeros([1, size(QUERYSET)]);
 confusion_matrix = zeros(length(category_histogram));
 
 fprintf('Running visual search for %d iterations\n', length(QUERYSET));
@@ -109,11 +110,12 @@ for imgindex = 1:size(QUERYSET)
         end
 
         pr_values(1, i) = correct_results / i;
-        pr_values(2, i) = correct_results / category_histogram(query_category);
+        pr_values(2, i) = correct_results / (category_histogram(query_category) - 1);
     end
 
-    avg_precision(imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / length(QUERYSET);
-    fprintf('Average precision: %.2f\n', avg_precision(imgindex));
+    all_precision(imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / category_histogram(query_category);
+    
+    fprintf('Average precision: %.2f\n', all_precision(imgindex));
 
     % Limit results
     SHOW=10;
