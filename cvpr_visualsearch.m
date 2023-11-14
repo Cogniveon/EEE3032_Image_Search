@@ -9,7 +9,7 @@ addpath('./core/utils');
 % Clean the results folder (search output, PR graphs, confusion matrix, etc)
 rmdir_status = rmdir('./results/*', 's');
 
-[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES] = cvpr_config();
+[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES, NUM_RESULTS] = cvpr_config();
 
 %% 1) Load all the descriptors into "FEATURES"
 %% each row of FEATURES is a descriptor (is an image)
@@ -24,11 +24,15 @@ FEATURES = LoadFeatures(IMAGES);
 
 [QUERYSET, category_histogram] = RandomQueryset(IMAGES);
 
-% queryimg=floor(rand()*NIMG);
-% QUERYSET = 303;
+% Fix query to a non-random array for research purposes
+QUERYSET = [320; 379; 384; 434; 445; 500; 526; 559; 584; 4; 52; 68; 124; 156; 166; 205; 216; 241; 277; 348];
 
-all_precision = zeros([1, size(QUERYSET)]);
-all_recall = zeros([1, size(QUERYSET)]);
+% queryimg=floor(rand()*NIMG);
+% QUERYSET = 134;
+
+pr_values_at_n = zeros([2, size(QUERYSET)]);
+all_pr_values = zeros([2, size(QUERYSET)]);
+mean_pr_values = zeros(length(QUERYSET), 2, NIMG);
 confusion_matrix = zeros(length(category_histogram));
 
 fprintf('Running visual search for %d iterations\n', length(QUERYSET));
@@ -43,7 +47,7 @@ for imgindex = 1:size(QUERYSET)
         %% 3) Compute eigen model of the FEATURES matrix for PCA
         
         E = EigenModel(FEATURES);
-        E = EigenDeflate(E, 0.986);
+        E = EigenDeflate(E, 0.983);
         
         %% 4) Project the FEATURES into lower dimension
         
@@ -53,7 +57,7 @@ for imgindex = 1:size(QUERYSET)
     end
     
     %% 5) Compute the distance of images to the query
-    dst = cell(NIMG);
+    dst = cell(NIMG, 2);
     for i=1:NIMG
         candidate=FEATURES(i,:);
         query=FEATURES(queryimg,:);
@@ -70,8 +74,11 @@ for imgindex = 1:size(QUERYSET)
             otherwise
                 distance = cvpr_compare(query, candidate, 'euclidean');
         end
-        dst{i} = [distance i];
+
+        dst{i, 1} = distance;
+        dst{i, 2} = double(i);
     end
+    dst = cellfun(@double, dst, 'UniformOutput', false);
     dst = cell2mat(dst);
     dst = sortrows(dst, 1);
 
@@ -88,7 +95,7 @@ for imgindex = 1:size(QUERYSET)
 
         correct_results = 0;
         incorrect_results = 0;
-
+        
         if i > 1
             for n = 1:i-1
                 result_category = IMAGES{3, rows(n, 2)};
@@ -109,20 +116,33 @@ for imgindex = 1:size(QUERYSET)
             incorrect_results = incorrect_results + 1;
         end
 
-        pr_values(1, i) = correct_results / i;
-        pr_values(2, i) = correct_results / (category_histogram(query_category) - 1);
+
+        precision = correct_results / i;
+        recall = correct_results / category_histogram(query_category);
+    
+        if i == NUM_RESULTS
+            pr_values_at_n(1, imgindex) = precision;
+            pr_values_at_n(2, imgindex) = recall;
+        end
+
+        pr_values(1, i) = precision;
+        pr_values(2, i) = recall;
     end
 
-    all_precision(imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / category_histogram(query_category);
-    
-    fprintf('Average precision: %.2f\n', all_precision(imgindex));
+    mean_pr_values(imgindex, 1, :) = pr_values(1, :);
+    mean_pr_values(imgindex, 2, :) = pr_values(2, :);
+
+    all_pr_values(1, imgindex) = sum(pr_values(1,:) .* pr_values(3,:)) / category_histogram(query_category);
+    all_pr_values(2, imgindex) = mean(pr_values(2,:));
+
+    fprintf('Average precision: %.2f\n', all_pr_values(1, imgindex));
+    fprintf('Average recall: %.2f\n', all_pr_values(2, imgindex));
 
     % Limit results
-    SHOW=10;
-    dst=dst(1:SHOW,:);
+    dst=dst(1:NUM_RESULTS,:);
     
     %% 7) Calculate confusion matrix
-    for i = 1:SHOW
+    for i = 1:NUM_RESULTS
         confusion_matrix(IMAGES{3, dst(i, 2)}, imgindex) = confusion_matrix(IMAGES{3, dst(i, 2)}, imgindex) + 1;
     end
     
@@ -139,7 +159,7 @@ for imgindex = 1:size(QUERYSET)
 
     % Individual PR graph
     pr_graph = figure('Visible','off');
-    plot(pr_values(1, :), pr_values(2, :));
+    plot(pr_values(2, :), pr_values(1, :));
     hold on;
     title('PR Curve');
     xlabel('Recall');
@@ -149,11 +169,35 @@ for imgindex = 1:size(QUERYSET)
 
     toc;
 end
-
+    
 % Confusion Matrix
 confusion_matrix_output = figure('Visible','off');
 cm = confusionchart(confusion_matrix, CATEGORIES, 'Normalization', 'column-normalized');
-cm.Title = 'Spatial Colour and Texture Confusion Matrix with PCA (5x5, quant. 4, 7 bins, thresh. 0.09)';
+cm_title = 'Confusion Matrix - ';
+cm_title = [cm_title, DESCRIPTOR, '/', DISTANCE_FN, ' '];
+if USE_PCA
+    cm_title = [cm_title, 'with PCA'];
+end
+cm.Title = cm_title;
 xlabel('Query Classification');
 ylabel('Ground Truth');
 saveas(confusion_matrix_output, strcat('./results', '/', 'confusion_matrix'), 'jpg');
+
+% Mean PR graph
+mean_recall = reshape(mean(mean_pr_values(:, 2, :)), [1, NIMG]);
+mean_precision = reshape(mean(mean_pr_values(:, 1, :)), [1, NIMG]);
+meanpr_graph = figure('Visible','off');
+plot(mean_recall, mean_precision);
+hold on;
+title('Mean PR Curve');
+xlabel('Recall');
+ylabel('Precision');
+saveas(meanpr_graph, strcat('./results', '/', 'mean_pr_graph'), 'jpg');
+hold off;
+
+% Mean Average Precision
+map = mean(pr_values_at_n(1,:));
+fprintf('Mean average precision for %d images: %.2f\n', length(QUERYSET), map);
+
+% Save PR stats for reference
+save(strcat('./results', '/', 'stats.mat'), 'map', 'QUERYSET', 'all_pr_values');

@@ -1,14 +1,14 @@
-function F = extractSpacialColorHistogram(img, M, N)
+function F = extractSpacialColorHistogram(img, GRID_SIZE, Q)
   % Note img is a normalised RGB image i.e. colours range [0,1] not [0,255].
   arguments
     img
-    M = 5
-    N = 5
+    GRID_SIZE = [5 5]
+    Q = 4
   end
   [rows, columns, numberOfColorChannels] = size(img);
 
-  numBandsHorizontally = M;
-  numBandsVertically = N;
+  numBandsHorizontally = GRID_SIZE(1);
+  numBandsVertically = GRID_SIZE(2);
 
   topRows = round(linspace(1, rows+1, numBandsVertically + 1));
   leftColumns = round(linspace(1, (columns./numberOfColorChannels)+1, numBandsHorizontally + 1));
@@ -23,7 +23,7 @@ function F = extractSpacialColorHistogram(img, M, N)
 
       subImage = img(rowA : rowB, colA : colB, :);
 
-      rgbHist = extractRGBHistogram(subImage);
+      rgbHist = extractRGBHistogram(subImage, Q);
       
       F = [F rgbHist];
     end

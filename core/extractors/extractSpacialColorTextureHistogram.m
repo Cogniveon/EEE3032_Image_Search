@@ -1,15 +1,17 @@
-function F = extractSpacialColorTextureHistogram(img, M, N)
+function F = extractSpacialColorTextureHistogram(img, GRID_SIZE, Q, EdgeBins, EdgeThreshold)
   % Note img is a normalised RGB image i.e. colours range [0,1] not [0,255].
   arguments
     img
-    M = 5
-    N = 5
+    GRID_SIZE = [5 5]
+    Q = 4
+    EdgeBins = 8
+    EdgeThreshold = 0.09
   end
   [rows, columns, numberOfColorChannels] = size(img);
   F = [];
 
-  numBandsHorizontally = M;
-  numBandsVertically = N;
+  numBandsHorizontally = GRID_SIZE(1);
+  numBandsVertically = GRID_SIZE(2);
 
   topRows = round(linspace(1, rows+1, numBandsVertically + 1));
   leftColumns = round(linspace(1, (columns./numberOfColorChannels)+1, numBandsHorizontally + 1));
@@ -24,7 +26,7 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
       subImage = img(rowA : rowB, colA : colB, :);
 
       % Extract color info
-      colorHistogram = extractRGBHistogram(subImage);
+      colorHistogram = extractRGBHistogram(subImage, Q);
 
       % Extract edge info
       % subImage(:,:,1) * 0.3 + subImage(:,:,2) * 0.59 + subImage(:,:,3) * 0.11
@@ -32,7 +34,7 @@ function F = extractSpacialColorTextureHistogram(img, M, N)
       blurredGreyImg = imgaussfilt(greyImg, 1);
       [mag, angle] = Sobel(blurredGreyImg);
 
-      edge_histogram = Edge_Histogram(mag, angle);
+      edge_histogram = Edge_Histogram(mag, angle, EdgeBins, EdgeThreshold);
       
       F = [F edge_histogram colorHistogram];
     end

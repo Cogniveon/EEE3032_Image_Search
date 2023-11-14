@@ -60,8 +60,8 @@ classdef compute_descriptors < matlab.apps.AppBase
         end
 
         function compute(app, event)
-            descriptor = app.ExtractorDropDown.Value(1:end-2);
-
+            descriptor = app.ExtractorDropDown.Value(8:end-2);
+            
             if ~exist(strcat(app.DESCRIPTOR_FOLDER, '/', descriptor), 'dir')
                 mkdir(strcat(app.DESCRIPTOR_FOLDER, '/', descriptor))
             end
@@ -117,7 +117,7 @@ classdef compute_descriptors < matlab.apps.AppBase
             centerY = (screenSize(4) - appHeight) / 2;
 
             app.UIFigure.Position = [centerX centerY appWidth appHeight];
-            app.UIFigure.Name = 'MATLAB App';
+            app.UIFigure.Name = 'Compute Descriptors';
             % app.UIFigure.SizeChangedFcn = createCallbackFcn(app, @updateAppLayout, true);
 
             % Create GridLayout

@@ -20,7 +20,7 @@
 % ReviewTempalte.aux before re-running LaTeX.
 % (Or just hit 'q' on the first LaTeX run, let it finish, and you
 %  should be clear).
-\usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
+\usepackage[pagebackref,breaklinks,colorlinks,linkcolor=black]{hyperref}
 
 
 % Support for easy cross-referencing
@@ -33,6 +33,12 @@
 
 \begin{document}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.75\textwidth]{./assets/university_of_surrey_logo.jpeg}
+  \end{center}
+\end{figure}
+
 \title{EEE3032 – Coursework Assignment \\ Visual Search of an Image Collection }
 
 \author{Rohit Krishnan, {URN: 6839323},
@@ -43,24 +49,54 @@
 \newpage
 
 \begin{abstract}
-Your abstract goes here...
-...
+This paper investigates a comprehensive approach to improve the effectiveness of visual search within large
+image collections. The research focuses on evaluating the precision and recall of various image descriptors
+and also analysing its impact on performance after dimensionality reduction.
+
+The evaluation is conducted on the Microsoft MSRC V2 dataset, comprising 591 images across 20 categories. The study
+delves into key feature extraction methods, including Global Color Histogram, Spacial Grid with Color and
+Texture Histogram, and Convolutional Neural Network (CNN). Evaluation metrics such as precision and recall are
+employed to assess the performance of these techniques. The experiments reveal insights into the effectiveness of
+different feature extraction methods for image retrieval.
+
+Notable findings include how effective Convolutional Neural Networks are feature extraction, highlighting the
+strengths and limitations of  each approach. The results contribute to the understanding of image retrieval
+systems' performance, emphasizing their significance in diverse domains such as medical imaging, multimedia content
+management, and e-commerce.
+
+This research lays the groundwork for further exploration and optimization of content-based image retrieval
+techniques, aiming to enhance the capabilities of systems that play a pivotal role in managing the ever-expanding
+landscape of digital image data.
+
 \end{abstract}
 
 {
-  \hypersetup{linkcolor=black}
-  \tableofcontents
+\hypersetup{linkcolor=black}
+\tableofcontents
 }
 
-\twocolumn
+% \twocolumn
+\newpage
 
 %%%%%%%%% BODY TEXT
-\section{Introduction}
-\label{sec:intro}
+\include{partials/introduction}
+\include{partials/visual_search_techniques}
+\include{partials/experimental_results}
 
-this book is awesome \cite{szeliski2011computer}
+\section{Conclusion}
+\label{sec:conclusion}
 
-\newpage
+In conclusion, this paper investigated several content-based image retrieval techniques such as Convolutional Neural
+Networks, Spacial Grid with Color and Texture Histogram and Global Color Histogram. The evaluation metrics such as
+precision-recall curves and confusion matrices, provided useful insights into the performance of various descriptors and
+distance functions.
+
+The results suggests that Convolutional Neural Networks offer substantially good results compared the Global Color
+Histogram and Spacial Grid. However, there are many other approaches left to explore.
+
+Because of their adaptability, content-based image retrieval systems are useful tools for a variety of industries,
+including e-commerce, multimedia content management, and medical imaging. They provide effective ways to handle large
+amounts of digital picture data.
 
 %%%%%%%%% REFERENCES
 {\small

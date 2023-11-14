@@ -1,15 +1,14 @@
-function F = extractSpacialMeanColor(img, M, N)
+function F = extractSpacialMeanColor(img, GRID_SIZE)
   % Note img is a normalised RGB image i.e. colours range [0,1] not [0,255].
   arguments
     img
-    M = 5
-    N = 5
+    GRID_SIZE = [5 5]
   end
   [rows, columns, numberOfColorChannels] = size(img);
   F = [];
 
-  numBandsHorizontally = M;
-  numBandsVertically = N;
+  numBandsHorizontally = GRID_SIZE(1);
+  numBandsVertically = GRID_SIZE(2);
 
   topRows = round(linspace(1, rows+1, numBandsVertically + 1));
   leftColumns = round(linspace(1, (columns./numberOfColorChannels)+1, numBandsHorizontally + 1));

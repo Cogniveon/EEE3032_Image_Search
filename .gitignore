@@ -1,6 +1,7 @@
 descriptors/*
 MSRC_ObjCategImageDatabase_v2/*
 cvprlab/*
+results/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -16,13 +16,13 @@ close all;
 addpath('./core/utils');
 addpath('./core/extractors');
 
-[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR] = cvpr_config();
+[DATASET_FOLDER, DESCRIPTOR_FOLDER, DESCRIPTOR, DISTANCE_FN, USE_PCA, CATEGORIES, NUM_RESULTS, RGB_HIST_BINS, SPACIAL_GRID, EDGE_BINS, EDGE_THRESHOLD] = cvpr_config();
 
 if ~exist([DESCRIPTOR_FOLDER '/' DESCRIPTOR], 'dir')
     mkdir([DESCRIPTOR_FOLDER '/' DESCRIPTOR])
 end
 
-IMAGES = LoadImages([DATASET_FOLDER]);
+IMAGES = LoadImages(DATASET_FOLDER);
 [~, NIMG]=size(IMAGES);
 
 for i = 1:NIMG
@@ -32,20 +32,22 @@ for i = 1:NIMG
     descriptor_path = [DESCRIPTOR_FOLDER, '/', DESCRIPTOR, '/', IMAGES{2, i}];
 
     switch DESCRIPTOR
-        case 'random'
+        case 'Random'
             F = extractRandom(img);
-        case 'meanColor'
+        case 'MeanColor'
             F = extractMeanColor(img);
-        case 'globalRGBHistogram'
-            F = extractRGBHistogram(img);
-        case 'spacialMeanColor'
-            F = extractSpacialMeanColor(img);
-        case 'spacialColorHistogram'
-            F = extractSpacialColorHistogram(img);
-        case 'spacialColorTextureHistogram'
-            F = extractSpacialColorTextureHistogram(img);
-        case 'sift'
-            F = extractSIFT(img);
+        case 'RGBHistogram'
+            F = extractRGBHistogram(img, RGB_HIST_BINS);
+        case 'SpacialMeanColor'
+            F = extractSpacialMeanColor(img, SPACIAL_GRID);
+        case 'SpacialColorHistogram'
+            F = extractSpacialColorHistogram(img, SPACIAL_GRID, RGB_HIST_BINS);
+        case 'SpacialColorTextureHistogram'
+            F = extractSpacialColorTextureHistogram(img, SPACIAL_GRID, RGB_HIST_BINS, EDGE_BINS, EDGE_THRESHOLD);
+        case 'SIFT'
+            F = extractSIFT(img, 50);
+        case 'CNN'
+            F = extractCNN(img);
         otherwise
             F = extractRandom(img);
     end

@@ -1,7 +1,7 @@
 function F=extractRGBHistogram(img, Q)
     arguments
       img
-      Q = 6
+      Q = 4
     end
 
     % INPUT: img is a normalised RGB image i.e. colours range [0,1] not [0,255].
